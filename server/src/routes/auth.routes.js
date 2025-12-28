@@ -3,8 +3,6 @@ import { register, login } from "../controllers/auth.controller.js";
 
 const router = express.Router();
 
-console.log("✅ Auth routes file loaded");
-
 router.post("/register", register);
 router.post("/login", login);
 
