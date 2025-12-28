@@ -2,19 +2,18 @@ import "dotenv/config";
 import express from "express";
 import "./config/db.js";
 import authRoutes from "./routes/auth.routes.js";
+import taskRoutes from "./routes/task.routes.js";
 
 const app = express();
 
-/* Global middleware */
 app.use(express.json());
 
-/* Health check */
+app.use("/api/auth", authRoutes);
+app.use("/api/tasks", taskRoutes);
+
 app.get("/", (req, res) => {
   res.send("Server is running");
 });
-
-/* Mount auth routes */
-app.use("/api/auth", authRoutes);
 
 const PORT = process.env.PORT || 3137;
 

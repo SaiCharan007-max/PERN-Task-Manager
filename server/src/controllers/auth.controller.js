@@ -3,6 +3,8 @@
 //import functions to validate from "../utils/validators.js""
 import { validateEmail, validatePassword } from "../utils/validators.js";
 import bcrypt from "bcrypt";
+//import jwt from jsonwebtoken
+import jwt from "jsonwebtoken";
 
 //import pool from db.js
 import pool from "../config/db.js";
@@ -91,7 +93,7 @@ export const login = async (req, res) => {
 
     const user = result.rows[0];
 
-    // Verify password
+    // Verify password 
     const isCorrect = await bcrypt.compare(password, user.password_hash);
 
     if (!isCorrect) {
@@ -99,13 +101,16 @@ export const login = async (req, res) => {
     }
 
     // Successful login (JWT will come next)
+    const token = jwt.sign(
+      { userId: user.id },        // ✅ THIS KEY
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+
     return res.status(200).json({
-      message: "Login successful",
-      user: {
-        id: user.id,
-        name: user.name,
-        email: normalizedEmail
-      }
+      message: "User Logged In",
+      token
     });
 
   } catch (err) {
