@@ -1,12 +1,7 @@
-// auth.controller.js
 
-//import functions to validate from "../utils/validators.js""
 import { validateEmail, validatePassword } from "../utils/validators.js";
 import bcrypt from "bcrypt";
-//import jwt from jsonwebtoken
 import jwt from "jsonwebtoken";
-
-//import pool from db.js
 import pool from "../config/db.js";
 
 export const register = async (req, res) => {

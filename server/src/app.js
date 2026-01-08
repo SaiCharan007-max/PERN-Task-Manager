@@ -3,8 +3,16 @@ import express from "express";
 import "./config/db.js";
 import authRoutes from "./routes/auth.routes.js";
 import taskRoutes from "./routes/task.routes.js";
+import cors from "cors";
 
 const app = express();
+
+
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: false
+}));
+
 
 app.use(express.json());
 

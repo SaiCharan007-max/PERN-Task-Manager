@@ -16,7 +16,6 @@ export const getTasks = async (req, res) => {
     );
 
     return res.status(200).json({ tasks: result.rows });
-
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Server error" });
@@ -26,7 +25,6 @@ export const getTasks = async (req, res) => {
 /*
   GET /api/tasks/:id
 */
-
 export const getTaskById = async (req, res) => {
   try {
     const userId = req.userId;
@@ -44,7 +42,6 @@ export const getTaskById = async (req, res) => {
     }
 
     return res.status(200).json({ task: result.rows[0] });
-
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Server error" });
@@ -57,13 +54,13 @@ export const getTaskById = async (req, res) => {
 export const createTask = async (req, res) => {
   try {
     const userId = req.userId;
-
     if (!userId) {
       return res.status(401).json({ message: "Invalid user identity" });
     }
+
     const { title, description, status, priority, due_date } = req.body;
 
-    if (!title) {
+    if (!title || typeof title !== "string") {
       return res.status(400).json({ message: "Title is required" });
     }
 
@@ -73,16 +70,15 @@ export const createTask = async (req, res) => {
        RETURNING task_id, title, description, status, priority, due_date, created_at`,
       [
         userId,
-        title,
+        title.trim(),
         description || null,
-        status || "in_progress",
+        status || "todo",        // ✅ DB-valid default
         priority || null,
-        due_date || null
+        due_date || null,
       ]
     );
 
     return res.status(201).json({ task: result.rows[0] });
-
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Server error" });
@@ -96,6 +92,7 @@ export const updateTask = async (req, res) => {
   try {
     const userId = req.userId;
     const taskId = req.params.id;
+
     const { title, description, status, priority, due_date } = req.body;
 
     const result = await pool.query(
@@ -110,20 +107,21 @@ export const updateTask = async (req, res) => {
       [
         title,
         description || null,
-        status || "pending",
+        status,              // ✅ frontend controls status
         priority || null,
         due_date || null,
         taskId,
-        userId
+        userId,
       ]
     );
 
     if (result.rowCount === 0) {
-      return res.status(403).json({ message: "Not authorized or task not found" });
+      return res.status(403).json({
+        message: "Not authorized or task not found",
+      });
     }
 
     return res.status(200).json({ task: result.rows[0] });
-
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Server error" });
@@ -145,11 +143,12 @@ export const deleteTask = async (req, res) => {
     );
 
     if (result.rowCount === 0) {
-      return res.status(403).json({ message: "Not authorized or task not found" });
+      return res.status(403).json({
+        message: "Not authorized or task not found",
+      });
     }
 
     return res.status(200).json({ message: "Task deleted successfully" });
-
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: "Server error" });
